@@ -1,4 +1,4 @@
-const CACHE_NAME='tini-care-pwa-v0-2-flat';
+const CACHE_NAME='tini-care-pwa-v0-2-flat-NEW';
 const ASSETS=['./','./index.html','./manifest.json','./sw.js','./sw-register.js','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',(e)=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(ASSETS)))});
 self.addEventListener('activate',(e)=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.map(k=>k!==CACHE_NAME&&caches.delete(k))))) });
