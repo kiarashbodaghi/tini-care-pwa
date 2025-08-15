@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TINI-Care — نسخه تک‌فایلی (HTML)</title>
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;background:#f8fafc;color:#0f172a}
+    header{padding:16px 20px;background:#ffffff;border-bottom:1px solid #e2e8f0;position:sticky;top:0}
+    h1{margin:0;font-size:20px}
+    .subtitle{margin:6px 0 0;color:#334155}
+    main{max-width:920px;margin:0 auto;padding:16px}
+    .card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px;margin:16px 0;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
+    label{display:flex;flex-direction:column;gap:6px;font-size:14px}
+    input[type=range]{width:100%}
+    button{padding:10px 14px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;cursor:pointer}
+    button:hover{background:#f1f5f9}
+    .hint{color:#b45309;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:8px 12px}
+    footer{padding:20px;text-align:center;color:#475569}
+    pre{background:#0b1020;color:#e5e7eb;padding:12px;border-radius:12px;max-height:200px;overflow:auto}
+    small.mono{font-family:ui-monospace,SFMono-Regular,Consolas,Menlo,monospace}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🟢 TINI-Care — نسخهٔ تک‌فایلی</h1>
+    <p class="subtitle">مدیریت علائم وزوز گوش (نسخهٔ نمایشی با Web Audio، بدون نیاز به فایل جانبی)</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>شروع صدا</h2>
+      <button id="startAudio">شروع/توقف</button>
+      <div class="grid">
+        <label>حالت صدا
+          <select id="mode">
+            <option value="tone">تون خالص</option>
+            <option value="white">نویز سفید</option>
+            <option value="white_notch">نویز سفید + فیلتر نُوچ</option>
+          </select>
+        </label>
+
+        <label>فرکانس (Hz)
+          <input id="freq" type="range" min="100" max="12000" value="6000" step="10" />
+          <span id="freqVal" class="mono">6000 Hz</span>
+        </label>
+
+        <label>شدت (dBFS نسبی)
+          <input id="gain" type="range" min="-60" max="-6" value="-24" step="1" />
+          <span id="gainVal" class="mono">-24 dB</span>
+        </label>
+
+        <label>Q فیلتر نُوچ (پهنای باند)
+          <input id="q" type="range" min="0.5" max="20" value="10" step="0.5" />
+          <span id="qVal" class="mono">10</span>
+        </label>
+      </div>
+
+      <p class="hint">
+        ⚠️ احتیاط: صدا را با شدت پایین شروع کنید و از هدفون‌های ایمن استفاده کنید. این ابزار آموزشی/رفاهی است و ادعای درمان قطعی ندارد.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>آزمون خاموشی باقیمانده (RI)</h2>
+      <ol>
+        <li>فرکانس و شدت را تنظیم کنید (نزدیک به فرکانس وزوز).</li>
+        <li>«شروع RI» را بزنید تا ۶۰ ثانیه نویز پخش شود.</li>
+        <li>پس از توقف، امتیاز کاهش لحظه‌ای (۰–۱۰) را ثبت کنید.</li>
+      </ol>
+      <button id="startRI">شروع RI (۶۰ ثانیه)</button>
+      <label>امتیاز کاهش لحظه‌ای (۰–۱۰)
+        <input id="riScore" type="number" min="0" max="10" value="0" />
+      </label>
+      <button id="saveSession">ذخیره نتیجه</button>
+      <p id="saveMsg"></p>
+    </section>
+
+    <section class="card">
+      <h2>سوابق محلی</h2>
+      <button id="exportData">خروجی JSON</button>
+      <button id="clearData">پاک‌سازی همه</button>
+      <pre id="log"></pre>
+    </section>
+
+    <section class="card">
+      <h2>راهنمای بارگذاری در GitHub</h2>
+      <ol>
+        <li>در GitHub یک ریپو عمومی بسازید (مثلاً <code>tini-care-pwa</code>).</li>
+        <li>در تب Code روی <strong>Add file → Upload files</strong> کلیک کنید و این فایل را با نام <code>index.html</code> آپلود کنید.</li>
+        <li>(اختیاری) Settings → Pages → Deploy from branch → Branch: <code>main</code> ، Folder: <code>/</code> برای دمو آنلاین.</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer>
+    <small>TINI-Care — Single File Demo — © 2025 — Educational/Wellness</small>
+  </footer>
+
+  <script>
+  let audioCtx = null, masterGain = null, osc = null, noiseNode = null, notch = null, iirPink = null, riTimer = null, isPlaying = false;
+  const ui = {
+    startAudio: document.getElementById('startAudio'),
+    mode: document.getElementById('mode'),
+    freq: document.getElementById('freq'),
+    freqVal: document.getElementById('freqVal'),
+    gain: document.getElementById('gain'),
+    gainVal: document.getElementById('gainVal'),
+    q: document.getElementById('q'),
+    qVal: document.getElementById('qVal'),
+    startRI: document.getElementById('startRI'),
+    riScore: document.getElementById('riScore'),
+    saveSession: document.getElementById('saveSession'),
+    saveMsg: document.getElementById('saveMsg'),
+    log: document.getElementById('log'),
+    exportData: document.getElementById('exportData'),
+    clearData: document.getElementById('clearData'),
+  };
+  function dbToLin(db){ return Math.pow(10, db/20); }
+  function ensureAudio(){
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = audioCtx.createGain(); masterGain.gain.value = dbToLin(parseFloat(ui.gain.value)); masterGain.connect(audioCtx.destination);
+      notch = audioCtx.createBiquadFilter(); notch.type = "notch"; notch.frequency.value = parseFloat(ui.freq.value); notch.Q.value = parseFloat(ui.q.value); notch.connect(masterGain);
+      const feedforward = [0.99765, 0.0, 0.0], feedback = [1.0, -0.99765, 0.0];
+      iirPink = new IIRFilterNode(audioCtx, {feedforward, feedback}); iirPink.connect(notch);
+    }
+  }
+  function startTone(){ stopAll(); osc = audioCtx.createOscillator(); osc.type = "sine"; osc.frequency.value = parseFloat(ui.freq.value); osc.connect(masterGain); osc.start(); isPlaying = true; }
+  function startWhite(withNotch=false){
+    stopAll();
+    const bufferSize = 2 * audioCtx.sampleRate, noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate), data = noiseBuffer.getChannelData(0);
+    for(let i=0;i<bufferSize;i++){ data[i] = Math.random()*2 - 1; }
+    const src = audioCtx.createBufferSource(); src.buffer = noiseBuffer; src.loop = true;
+    if(withNotch){ src.connect(iirPink);} else { src.connect(masterGain);} src.start(); noiseNode = src; isPlaying = true;
+  }
+  function stopAll(){ try{ if(osc){ osc.stop(); osc.disconnect(); } }catch(e){} try{ if(noiseNode){ noiseNode.stop(); noiseNode.disconnect(); } }catch(e){} osc = null; noiseNode = null; isPlaying = false; }
+  function updateNotch(){ if(!audioCtx) return; notch.frequency.value = parseFloat(ui.freq.value); notch.Q.value = parseFloat(ui.q.value); }
+  function updateGain(){ if(audioCtx) masterGain.gain.value = dbToLin(parseFloat(ui.gain.value)); }
+  function playCurrent(){ if(!audioCtx) return; const mode = ui.mode.value; if(mode==='tone') startTone(); if(mode==='white') startWhite(false); if(mode==='white_notch') startWhite(true); }
+  ui.startAudio.addEventListener('click', async ()=>{ ensureAudio(); if(audioCtx.state==='suspended'){ await audioCtx.resume(); } if(isPlaying){ stopAll(); return; } playCurrent(); });
+  ui.mode.addEventListener('change', ()=>{ if(isPlaying){ playCurrent(); } });
+  ui.freq.addEventListener('input', ()=>{ ui.freqVal.textContent = ui.freq.value + " Hz"; updateNotch(); if(osc){ osc.frequency.value = parseFloat(ui.freq.value); } });
+  ui.gain.addEventListener('input', ()=>{ ui.gainVal.textContent = ui.gain.value + " dB"; updateGain(); });
+  ui.q.addEventListener('input', ()=>{ ui.qVal.textContent = ui.q.value; updateNotch(); });
+  ui.startRI.addEventListener('click', async ()=>{ ensureAudio(); if(audioCtx.state==='suspended'){ await audioCtx.resume(); } stopAll(); ui.mode.value='white_notch'; playCurrent();
+    ui.startRI.disabled = true; let seconds = 60; const label = ui.startRI.textContent;
+    riTimer = setInterval(()=>{ seconds--; ui.startRI.textContent = "در حال پخش… " + seconds + " ثانیه";
+      if(seconds<=0){ clearInterval(riTimer); stopAll(); ui.startRI.textContent = label; ui.startRI.disabled = false; alert("پخش پایان یافت. لطفاً کاهش لحظه‌ای وزوز را (۰ تا ۱۰) ثبت کنید."); }
+    }, 1000);
+  });
+  function loadSessions(){ return JSON.parse(localStorage.getItem('tini_sessions') || '[]'); }
+  function saveSessions(list){ localStorage.setItem('tini_sessions', JSON.stringify(list)); }
+  function renderLog(){ ui.log.textContent = JSON.stringify(loadSessions(), null, 2); }
+  ui.saveSession.addEventListener('click', ()=>{ const item = { ts:new Date().toISOString(), mode:ui.mode.value, freq:parseFloat(ui.freq.value), gainDb:parseFloat(ui.gain.value), q:parseFloat(ui.q.value), riScore:parseFloat(ui.riScore.value||0) };
+    const list = loadSessions(); list.push(item); saveSessions(list); ui.saveMsg.textContent="✅ ذخیره شد."; renderLog(); setTimeout(()=> ui.saveMsg.textContent="", 1500); });
+  ui.exportData.addEventListener('click', ()=>{ const blob = new Blob([JSON.stringify(loadSessions(), null, 2)], {type:'application/json'}), url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'tini_sessions.json'; a.click(); URL.revokeObjectURL(url); });
+  ui.clearData.addEventListener('click', ()=>{ if(confirm("همه داده‌های محلی پاک شود؟")){ localStorage.removeItem('tini_sessions'); renderLog(); } });
+  ui.freq.dispatchEvent(new Event('input')); ui.gain.dispatchEvent(new Event('input')); ui.q.dispatchEvent(new Event('input')); renderLog();
+  </script>
+</body>
+</html>
