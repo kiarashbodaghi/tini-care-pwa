@@ -3,65 +3,374 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TINI-Care v0.2 – PWA</title>
+  <title>TINI‑Care v0.4 — PWA</title>
   <meta name="theme-color" content="#0ea5e9" />
+  <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icon-192.png" />
   <link rel="apple-touch-icon" href="icon-192.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <style>
-    body {
-      font-family: sans-serif;
-      background: #0f172a;
-      color: white;
-      margin: 0;
-      padding: 0;
+    :root{
+      --bg:#0b1220; --card:#0f172a; --muted:#94a3b8; --text:#e2e8f0; --accent:#0ea5e9; --border:#1e293b; --ok:#22c55e; --warn:#f59e0b;
+      --radius:16px;
     }
-    header {
-      background: #0ea5e9;
-      padding: 10px;
-      text-align: center;
-      font-size: 18px;
-    }
-    section {
-      padding: 15px;
-    }
-    .btn {
-      display: inline-block;
-      background: #0ea5e9;
-      color: white;
-      padding: 10px 15px;
-      border-radius: 5px;
-      text-decoration: none;
-      margin-top: 10px;
-    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:Vazirmatn,Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text)}
+    header{position:sticky;top:0;background:rgba(15,23,42,.8);backdrop-filter:saturate(180%) blur(8px);border-bottom:1px solid var(--border);z-index:10}
+    .wrap{max-width:1100px;margin:0 auto;padding:10px 14px;display:flex;gap:10px;align-items:center}
+    .brand{display:flex;align-items:center;gap:10px}
+    .brand .logo{width:28px;height:28px;border-radius:8px;border:2px solid var(--accent);display:grid;place-items:center}
+    .brand b{font-weight:700}
+    .tabs{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+    .tab{padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:#0b1020;color:var(--text);cursor:pointer;font-size:14px}
+    .tab.active{background:var(--accent);border-color:var(--accent);color:#001016}
+    main{max-width:1100px;margin:0 auto;padding:16px}
+    .hero{border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:14px;background:#0b1020}
+    .hero img{width:100%;display:block}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .hint{color:#fcd34d;background:rgba(252,211,77,.08);border:1px solid rgba(252,211,77,.25);border-radius:12px;padding:8px 12px}
+    label{display:flex;flex-direction:column;gap:6px;font-size:14px}
+    input[type=range],select,button,input[type=number],textarea{width:100%}
+    button{padding:10px 14px;border:1px solid var(--border);border-radius:12px;background:#0b1020;cursor:pointer;color:var(--text)}
+    button:hover{background:#0c1324}
+    .footer{padding:24px;text-align:center;color:var(--muted);font-size:12px}
+    canvas{width:100%;height:220px;background:#0b1020;border:1px solid var(--border);border-radius:12px}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media(max-width:720px){.two{grid-template-columns:1fr}}
+    .muted{color:var(--muted)}
+    .about-list{margin:0;padding-right:18px}
+    .about-list li{margin:4px 0}
+    a{color:#38bdf8}
+    .note{background:#052e3a;border:1px solid #075985;border-radius:12px;padding:10px 12px;color:#b6e3ff}
+    .pill{display:inline-block;padding:4px 10px;border:1px solid var(--border);border-radius:999px;margin:2px;background:#0b1020}
   </style>
 </head>
 <body>
   <header>
-    <strong>TINI-Care</strong> | مدیریت وزوز گوش
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo">🔊</div>
+        <div>
+          <div><b>TINI‑Care</b> <small class="muted">v0.4</small></div>
+          <small class="muted">PWA | مدیریت علائم وزوز</small>
+        </div>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="home">خانه</button>
+        <button class="tab" data-tab="sound">صدا</button>
+        <button class="tab" data-tab="assess">ارزیابی</button>
+        <button class="tab" data-tab="progress">پیشرفت</button>
+        <button class="tab" data-tab="resources">منابع</button>
+        <button class="tab" data-tab="about">درباره</button>
+      </div>
+    </div>
   </header>
 
-  <section>
-    <h2>درباره برنامه</h2>
-    <p>این برنامه توسط <strong>کیارش بداغی</strong> طراحی شده است. هدف آن، کمک به مدیریت وزوز گوش با استفاده از تکنیک‌های نوین صوت‌درمانی و رابط کاربری ساده است. این نسخه یک اپلیکیشن تحت وب پیش‌رونده (PWA) است و می‌توانید آن را به صفحه اصلی گوشی خود اضافه کنید.</p>
-  </section>
+  <main>
+    <div class="hero"><img src="banner.png" alt="TINI‑Care banner"></div>
 
-  <section>
-    <h2>آزمون RI</h2>
-    <p>برای اجرای آزمون، از دکمه‌های کنترلی زیر استفاده کنید.</p>
-    <!-- بخش کنترل صدا و فرکانس -->
-    <label>فرکانس:</label>
-    <input type="range" min="1000" max="12000" step="100" value="8000">
-    <br/>
-    <label>شدت صدا (dBFS):</label>
-    <input type="range" min="-80" max="0" step="1" value="-20">
-    <br/>
-    <a href="#" class="btn">شروع آزمون</a>
-  </section>
+    <!-- HOME -->
+    <section class="view" id="view-home">
+      <div class="grid">
+        <div class="card">
+          <div class="title"><h3>راهنمای شروع سریع</h3></div>
+          <ol class="muted">
+            <li>به تب <b>صدا</b> برو و حالت دلخواه (تون/نویز/نُوچ/صورتی/قهوه‌ای/AM) را انتخاب کن.</li>
+            <li>فرکانس نزدیک وزوز، شدت کم، و در صورت نیاز Q فیلتر نُوچ را تنظیم کن.</li>
+            <li>برای ارزیابی دوره‌ای به تب <b>ارزیابی</b> برو (THI/TFI).</li>
+            <li>در تب <b>پیشرفت</b> روند تغییر RI/THI/TFI را ببین.</li>
+          </ol>
+          <p class="hint">⚠️ با ولوم پایین و هدفون ایمن شروع کنید. این ابزار آموزشی/رفاهی است.</p>
+          <div>
+            <span class="pill">Web Audio</span>
+            <span class="pill">PWA</span>
+            <span class="pill">Offline</span>
+            <span class="pill">LocalStorage</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="title"><h3>نمای کلی امکانات</h3></div>
+          <img src="infographic.png" alt="infographic" style="width:100%;border-radius:12px;border:1px solid var(--border)">
+        </div>
+      </div>
+    </section>
 
-  <footer style="text-align:center; padding:15px; font-size:12px; background:#1e293b;">
-    © 2025 Kiarash Bodaghi – All rights reserved.
-  </footer>
+    <!-- SOUND -->
+    <section class="view" id="view-sound" style="display:none">
+      <div class="grid">
+        <div class="card">
+          <div class="title"><h3>پخش صدا</h3><button id="startAudio">شروع/توقف</button></div>
+          <div class="grid">
+            <label>حالت صدا
+              <select id="mode">
+                <option value="tone">تون خالص</option>
+                <option value="white">نویز سفید</option>
+                <option value="pink">نویز صورتی</option>
+                <option value="brown">نویز قهوه‌ای</option>
+                <option value="white_notch">نویز سفید + نُوچ</option>
+                <option value="am_noise">نویز مُدوله‌شده (AM)</option>
+              </select>
+            </label>
+            <label>فرکانس (Hz)
+              <input id="freq" type="range" min="100" max="12000" value="6000" step="10" />
+              <small id="freqVal" class="muted">6000 Hz</small>
+            </label>
+            <label>شدت (dBFS نسبی)
+              <input id="gain" type="range" min="-60" max="-6" value="-24" step="1" />
+              <small id="gainVal" class="muted">-24 dB</small>
+            </label>
+            <label>Q فیلتر نُوچ
+              <input id="q" type="range" min="0.5" max="20" value="10" step="0.5" />
+              <small id="qVal" class="muted">10</small>
+            </label>
+            <label>سرعت مُدولاسیون AM (Hz)
+              <input id="amRate" type="range" min="0.5" max="20" value="4" step="0.5" />
+              <small id="amVal" class="muted">4 Hz</small>
+            </label>
+          </div>
+          <p class="note">نکته: برای RI معمولاً نویز باندپهن با نُوچ نزدیک فرکانس وزوز تست می‌شود؛ اما پاسخ افراد متفاوت است.</p>
+        </div>
+
+        <div class="card">
+          <div class="title"><h3>آزمون RI</h3><button id="startRI">شروع RI (۶۰ ثانیه)</button></div>
+          <ol class="muted"><li>فرکانس/Q/شدت را تنظیم کنید.</li><li>RI را آغاز کنید؛ پس از توقف امتیاز را ثبت کنید.</li></ol>
+          <div class="two">
+            <label>امتیاز RI (۰–۱۰)
+              <input id="riScore" type="number" min="0" max="10" value="0" />
+            </label>
+            <label>یادداشت جلسه
+              <textarea id="note" rows="2" placeholder="حس شما، شرایط محیط، هدفون مورد استفاده..."></textarea>
+            </label>
+          </div>
+          <button id="saveSession">ذخیره جلسه</button>
+          <small id="saveMsg" class="muted"></small>
+        </div>
+      </div>
+    </section>
+
+    <!-- ASSESS -->
+    <section class="view" id="view-assess" style="display:none">
+      <div class="grid">
+        <div class="card">
+          <div class="title"><h3>THI کوتاه (۱۰ سؤال)</h3><button id="saveTHI">ثبت THI</button></div>
+          <p class="muted">پاسخ: بله=2، گاهی=1، خیر=0</p>
+          <div id="thiForm"></div>
+          <small class="muted">نمره کل: <b id="thiTotal">0</b></small>
+        </div>
+        <div class="card">
+          <div class="title"><h3>TFI کوتاه (۱۰ سؤال)</h3><button id="saveTFI">ثبت TFI</button></div>
+          <p class="muted">۰ تا ۱۰ (شدت/آزارندگی)</p>
+          <div id="tfiForm"></div>
+          <small class="muted">میانگین: <b id="tfiAvg">0</b></small>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROGRESS -->
+    <section class="view" id="view-progress" style="display:none">
+      <div class="grid">
+        <div class="card"><div class="title"><h3>نمودار جلسات (RI/فرکانس)</h3><button id="exportAll">خروجی JSON</button></div><canvas id="chartSessions" width="900" height="240"></canvas></div>
+        <div class="card"><div class="title"><h3>ارزیابی‌ها (THI/TFI)</h3><button id="clearAll">پاک‌سازی همه</button></div><canvas id="chartScores" width="900" height="240"></canvas></div>
+        <div class="card"><h3>سوابق</h3><pre id="log"></pre></div>
+      </div>
+    </section>
+
+    <!-- RESOURCES -->
+    <section class="view" id="view-resources" style="display:none">
+      <div class="card">
+        <h3>منابع معتبر (برای مطالعه بیشتر)</h3>
+        <ul class="about-list muted">
+          <li>راهنمای بالینی آکادمی گوش و حلق و بینی آمریکا (AAO‑HNS): <a href="https://www.entnet.org/quality-practice/quality-products/clinical-practice-guidelines/tinnitus/" target="_blank" rel="noopener">Clinical Practice Guideline: Tinnitus</a></li>
+          <li>بازبینی کاکرین دربارهٔ «صوت‌درمانی/ماسکینگ» در تینیـتوس: <a href="https://www.cochrane.org/evidence/CD006371_sound-therapy-masking-management-tinnitus-adults" target="_blank" rel="noopener">Cochrane Review</a></li>
+          <li>پایگاه انجمن تینیـتوس آمریکا (ATA) — ابزارها و منابع بیماران: <a href="https://www.ata.org/about-tinnitus/patient-tools/patient-resources/" target="_blank" rel="noopener">ATA Resources</a></li>
+          <li>مرور سیستماتیک «خاموشی باقیمانده (Residual Inhibition)»: <a href="https://pubmed.ncbi.nlm.nih.gov/33931174/" target="_blank" rel="noopener">PubMed</a></li>
+          <li>پرسشنامه THI (PDF): <a href="https://ata.org/wp-content/uploads/2022/08/Tinnitus_Handicap_Inventory.pdf" target="_blank" rel="noopener">ATA THI PDF</a></li>
+          <li>راهنمای جامع بیماران (Tinnitus UK): <a href="https://www.tinnitus.org.uk/" target="_blank" rel="noopener">tinnitus.org.uk</a></li>
+        </ul>
+        <p class="note">مدیریت وزوز معمولاً ترکیبی از آموزش، رفتاردرمانی، توانبخشی شنوایی/سمعک و صداست؛ نتایج فردبه‌فرد متفاوت است.</p>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="view" id="view-about" style="display:none">
+      <div class="card">
+        <h3>دربارهٔ TINI‑Care</h3>
+        <p class="muted">
+          <b>TINI‑Care</b> یک وب‌اپ پیش‌رونده (PWA) برای <b>مدیریت علائم وزوز گوش</b> است. داده‌ها فقط در دستگاه شما ذخیره می‌شود و هر زمان قابل حذف است.
+        </p>
+        <h4>دربارهٔ من</h4>
+        <p class="muted">
+          <b>طراح/توسعه‌دهنده:</b> کیارش بداغی (Kiarash Bodaghi)<br/>
+          <b>پروژه:</b> TINI‑Care (نسخه نمایشی پژوهشی)<br/>
+          <!-- اگر خواستید: ایمیل یا لینک شبکه اجتماعی خود را اینجا اضافه کنید -->
+          <!-- <b>تماس:</b> your-email@example.com -->
+        </p>
+        <h4>مسئولیت‌پذیری</h4>
+        <p class="muted">این ابزار آموزشی/رفاهی است و جایگزین تشخیص/درمان پزشکی نیست. با ولوم پایین شروع کنید و در صورت وجود بیماری زمینه‌ای با متخصص مشورت نمایید.</p>
+      </div>
+    </section>
+  </main>
+
+  <div class="footer">© 2025 TINI‑Care — PWA Demo</div>
+
+  <script>
+  // -------- Tabs --------
+  document.querySelectorAll('.tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const id = btn.dataset.tab;
+      document.querySelectorAll('.view').forEach(v=>v.style.display='none');
+      document.getElementById('view-'+id).style.display='block';
+      if(id==='progress'){ renderLog(); drawCharts(); }
+    });
+  });
+
+  // -------- Audio Engine --------
+  let audioCtx=null, masterGain=null, osc=null, noiseNode=null, notch=null, iirPink=null, iirBrown=null, amGain=null, riTimer=null, isPlaying=false;
+  const ui = {
+    startAudio: document.getElementById('startAudio'), mode: document.getElementById('mode'),
+    freq: document.getElementById('freq'), freqVal: document.getElementById('freqVal'),
+    gain: document.getElementById('gain'), gainVal: document.getElementById('gainVal'),
+    q: document.getElementById('q'), qVal: document.getElementById('qVal'),
+    amRate: document.getElementById('amRate'), amVal: document.getElementById('amVal'),
+    startRI: document.getElementById('startRI'), riScore: document.getElementById('riScore'),
+    note: document.getElementById('note'), saveSession: document.getElementById('saveSession'),
+    saveMsg: document.getElementById('saveMsg'), log: document.getElementById('log'),
+    exportAll: document.getElementById('exportAll'), clearAll: document.getElementById('clearAll'),
+  };
+  function dbToLin(db){ return Math.pow(10, db/20); }
+  function ensureAudio(){
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = audioCtx.createGain(); masterGain.gain.value = dbToLin(parseFloat(ui.gain.value)); masterGain.connect(audioCtx.destination);
+      notch = audioCtx.createBiquadFilter(); notch.type='notch'; notch.frequency.value=parseFloat(ui.freq.value); notch.Q.value=parseFloat(ui.q.value); notch.connect(masterGain);
+      // Pink noise IIR approximation
+      const ff = [0.99765, 0.0, 0.0], fb = [1.0, -0.99765, 0.0];
+      iirPink = new IIRFilterNode(audioCtx,{feedforward:ff,feedback:fb}); iirPink.connect(notch);
+      // Brown noise via lowshelf tilt
+      iirBrown = audioCtx.createBiquadFilter(); iirBrown.type = "lowshelf"; iirBrown.frequency.value = 300; iirBrown.gain.value = 15; iirBrown.connect(masterGain);
+      // AM
+      amGain = audioCtx.createGain(); amGain.gain.value = 1.0;
+    }
+  }
+  function whiteBuffer(){
+    const N=2*audioCtx.sampleRate, buf=audioCtx.createBuffer(1,N,audioCtx.sampleRate), data=buf.getChannelData(0);
+    for(let i=0;i<N;i++){ data[i]=Math.random()*2-1; } return buf;
+  }
+  function startTone(){ stopAll(); osc=audioCtx.createOscillator(); osc.type='sine'; osc.frequency.value=parseFloat(ui.freq.value);
+    osc.connect(masterGain); osc.start(); isPlaying=true; }
+  function startNoise(chainTarget){
+    stopAll(); const src = audioCtx.createBufferSource(); src.buffer = whiteBuffer(); src.loop = true; src.connect(chainTarget); src.start();
+    noiseNode = src; isPlaying = true;
+  }
+  function startPink(){ ensureAudio(); startNoise(iirPink); }
+  function startWhite(withNotch=false){ ensureAudio(); startNoise(withNotch? iirPink : masterGain); }
+  function startBrown(){ ensureAudio(); startNoise(iirBrown); }
+  function startAMNoise(){
+    stopAll(); ensureAudio();
+    const carrier = audioCtx.createBufferSource(); carrier.buffer = whiteBuffer(); carrier.loop=true;
+    const lfo = audioCtx.createOscillator(); lfo.type='sine'; lfo.frequency.value=parseFloat(ui.amRate.value);
+    const lfoGain = audioCtx.createGain(); lfoGain.gain.value=0.5; // depth 0.5
+    lfo.connect(lfoGain); lfoGain.connect(amGain.gain);
+    carrier.connect(amGain); amGain.connect(masterGain); carrier.start(); lfo.start();
+    noiseNode = carrier; osc = lfo; isPlaying = true;
+  }
+  function stopAll(){ try{osc?.stop();osc?.disconnect();}catch(e){} try{noiseNode?.stop();noiseNode?.disconnect();}catch(e){} osc=null; noiseNode=null; isPlaying=false; }
+  function updateNotch(){ if(!audioCtx) return; notch.frequency.value=parseFloat(ui.freq.value); notch.Q.value=parseFloat(ui.q.value); }
+  function updateGain(){ if(audioCtx) masterGain.gain.value = dbToLin(parseFloat(ui.gain.value)); }
+  function playCurrent(){ if(!audioCtx) return; const m=ui.mode.value;
+    if(m==='tone') startTone();
+    if(m==='white') startWhite(false);
+    if(m==='white_notch') startWhite(true);
+    if(m==='pink') startPink();
+    if(m==='brown') startBrown();
+    if(m==='am_noise') startAMNoise();
+  }
+  ui.startAudio.addEventListener('click', async ()=>{ ensureAudio(); if(audioCtx.state==='suspended'){ await audioCtx.resume(); } if(isPlaying){ stopAll(); return; } playCurrent(); });
+  ui.mode.addEventListener('change', ()=>{ if(isPlaying) playCurrent(); });
+  ui.freq.addEventListener('input', ()=>{ ui.freqVal.textContent = ui.freq.value + " Hz"; updateNotch(); if(osc && osc.frequency) osc.frequency.value = parseFloat(ui.freq.value); });
+  ui.gain.addEventListener('input', ()=>{ ui.gainVal.textContent = ui.gain.value + " dB"; updateGain(); });
+  ui.q.addEventListener('input', ()=>{ ui.qVal.textContent = ui.q.value; updateNotch(); });
+  ui.amRate.addEventListener('input', ()=>{ ui.amVal.textContent = ui.amRate.value + " Hz"; if(osc && osc.frequency) osc.frequency.value = parseFloat(ui.amRate.value); });
+
+  // -------- RI + Storage --------
+  ui.startRI.addEventListener('click', async ()=>{
+    ensureAudio(); if(audioCtx.state==='suspended'){ await audioCtx.resume(); }
+    stopAll(); ui.mode.value='white_notch'; playCurrent(); ui.startRI.disabled=true;
+    let seconds=60; const label=ui.startRI.textContent;
+    riTimer=setInterval(()=>{ seconds--; ui.startRI.textContent='در حال پخش… '+seconds+' ثانیه';
+      if(seconds<=0){ clearInterval(riTimer); stopAll(); ui.startRI.textContent=label; ui.startRI.disabled=false; alert('پخش پایان یافت. امتیاز RI را ثبت کنید.'); }
+    },1000);
+  });
+  function load(k){return JSON.parse(localStorage.getItem(k)||'[]');} function save(k,d){localStorage.setItem(k,JSON.stringify(d));}
+  function loadAll(){return{sessions:load('tini_sessions'),thi:load('tini_thi'),tfi:load('tini_tfi')}}
+  function renderLog(){ const all=loadAll(); ui.log.textContent = JSON.stringify(all, null, 2); }
+  ui.saveSession.addEventListener('click', ()=>{
+    const item = { ts:new Date().toISOString(), mode:ui.mode.value, freq:parseFloat(ui.freq.value),
+      gainDb:parseFloat(ui.gain.value), q:parseFloat(ui.q.value), amRate:parseFloat(ui.amRate.value), riScore:parseFloat(ui.riScore.value||0),
+      note: ui.note.value.trim() };
+    const list = load('tini_sessions'); list.push(item); save('tini_sessions', list);
+    ui.saveMsg.textContent='✅ ذخیره شد.'; setTimeout(()=>ui.saveMsg.textContent='',1500); ui.note.value='';
+  });
+  ui.exportAll.addEventListener('click', ()=>{ const blob = new Blob([JSON.stringify(loadAll(), null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='tini_data.json'; a.click(); URL.revokeObjectURL(url); });
+  ui.clearAll.addEventListener('click', ()=>{ if(confirm('همه داده‌ها پاک شود؟')){ localStorage.removeItem('tini_sessions'); localStorage.removeItem('tini_thi'); localStorage.removeItem('tini_tfi'); renderLog(); drawCharts(); } });
+
+  // -------- Forms THI / TFI --------
+  const thiQs = ["آیا وزوز تمرکز شما را سخت می‌کند؟","آیا وزوز باعث اضطراب شما می‌شود؟","آیا خواب شما را مختل می‌کند؟","آیا در محیط‌های ساکت آزارنده‌تر است؟",
+    "آیا فعالیت‌های روزانه را مختل می‌کند؟","آیا شنیدن را برای شما دشوارتر می‌کند؟","آیا باعث عصبانیت/کلافگی می‌شود؟","آیا لذت از زندگی را کم می‌کند؟",
+    "آیا نیاز به کمک حرفه‌ای احساس می‌کنید؟","آیا روابط اجتماعی شما را تحت‌تأثیر گذاشته؟"];
+  const tfiQs = ["شدت کلی وزوز","آزارندگی وزوز","تأثیر بر خواب","تأثیر بر تمرکز","تأثیر بر شنیدن","استرس ناشی از وزوز","کنترل‌پذیری","آگاهی از وزوز در روز","تأثیر بر خلق","تأثیر بر فعالیت‌ها"];
+  function renderTHI(){ const box=document.getElementById('thiForm'); box.innerHTML='';
+    thiQs.forEach((q,i)=>{ const row=document.createElement('div'); row.className='two';
+      row.innerHTML='<label>'+(i+1)+') '+q+'<select data-i="'+i+'" class="thi"><option value="0">خیر (0)</option><option value="1">گاهی (1)</option><option value="2">بله (2)</option></select></label>'; box.appendChild(row); });
+  }
+  function renderTFI(){ const box=document.getElementById('tfiForm'); box.innerHTML='';
+    tfiQs.forEach((q,i)=>{ const row=document.createElement('div'); row.innerHTML='<label>'+(i+1)+') '+q+'<input class="tfi" data-i="'+i+'" type="range" min="0" max="10" value="0"/></label>'; box.appendChild(row); });
+  }
+  function calcTHI(){ let s=0; document.querySelectorAll('select.thi').forEach(el=>s+=parseInt(el.value||0)); document.getElementById('thiTotal').textContent=s; return s; }
+  function calcTFI(){ let arr=[]; document.querySelectorAll('input.tfi').forEach(el=>arr.push(parseInt(el.value||0))); const avg=arr.length? (arr.reduce((a,b)=>a+b,0)/arr.length):0; document.getElementById('tfiAvg').textContent=avg.toFixed(1); return avg; }
+  document.addEventListener('input', (e)=>{ if(e.target.classList.contains('thi')) calcTHI(); if(e.target.classList.contains('tfi')) calcTFI(); });
+  document.getElementById('saveTHI').addEventListener('click', ()=>{ const score=calcTHI(); const list=load('tini_thi'); list.push({ts:new Date().toISOString(), score}); save('tini_thi', list); alert('THI ثبت شد: '+score); });
+  document.getElementById('saveTFI').addEventListener('click', ()=>{ const score=calcTFI(); const list=load('tini_tfi'); list.push({ts:new Date().toISOString(), score}); save('tini_tfi', list); alert('TFI ثبت شد: '+score.toFixed(1)); });
+
+  // -------- Charts --------
+  function drawLine(ctx, data, color, minY, maxY){
+    const w=ctx.canvas.width, h=ctx.canvas.height, pad=24;
+    if(!data.length) return;
+    const xstep=(w-2*pad)/(Math.max(1,data.length-1));
+    ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=2;
+    data.forEach((d,i)=>{
+      const x = pad + i*xstep;
+      const y = pad + (h-2*pad) * (1- (d-minY)/(maxY-minY || 1));
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+  }
+  function clearCanvas(c){ const ctx=c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height); ctx.fillStyle='#0b1020'; ctx.fillRect(0,0,c.width,c.height); ctx.strokeStyle='#1e293b'; ctx.strokeRect(0,0,c.width,c.height); }
+  function drawCharts(){
+    const sessions=load('tini_sessions'); const freqs=sessions.map(s=>s.freq); const ris=sessions.map(s=>s.riScore);
+    const c1=document.getElementById('chartSessions'); clearCanvas(c1); const x1=c1.getContext('2d');
+    if(freqs.length) drawLine(x1, freqs, '#38bdf8', Math.min(...freqs,100), Math.max(...freqs,12000));
+    if(ris.length) drawLine(x1, ris, '#22c55e', 0, 10);
+    const thi=load('tini_thi').map(x=>x.score); const tfi=load('tini_tfi').map(x=>x.score);
+    const c2=document.getElementById('chartScores'); clearCanvas(c2); const x2=c2.getContext('2d');
+    if(thi.length) drawLine(x2, thi, '#f97316', 0, 100); if(tfi.length) drawLine(x2, tfi, '#a78bfa', 0, 10);
+  }
+
+  // init
+  (function init(){
+    document.getElementById('freq').dispatchEvent(new Event('input'));
+    document.getElementById('gain').dispatchEvent(new Event('input'));
+    document.getElementById('q').dispatchEvent(new Event('input'));
+    document.getElementById('amRate').dispatchEvent(new Event('input'));
+    renderTHI(); renderTFI();
+  })();
+  </script>
+  <script src="sw-register.js"></script>
 </body>
 </html>
