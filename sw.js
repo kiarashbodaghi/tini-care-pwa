@@ -1,5 +1,5 @@
 // sw.js — fast update + safe cache
-const CACHE_NAME = "tini-care-pwa-v0-4-fast-1";
+const CACHE_NAME = "tini-care-pwa-v0-4-fast-3";
 const ASSETS = [
   "./","./index.html","./manifest.json","./sw.js","./sw-register.js",
   "./icon-192.png","./icon-512.png","./banner.png","./infographic.png"
